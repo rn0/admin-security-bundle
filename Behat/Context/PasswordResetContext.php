@@ -179,6 +179,14 @@ class PasswordResetContext extends PageObjectContext implements KernelAwareConte
     }
 
     /**
+     * @return \FOS\UserBundle\Doctrine\UserManager
+     */
+    private function getUserManager()
+    {
+        return $this->kernel->getContainer()->get('fos_user.user_manager');
+    }
+
+    /**
      * @Given /^i fill in new password with confirmation$/
      */
     public function iFillInNewPasswordWithConfirmation()
@@ -229,13 +237,5 @@ class PasswordResetContext extends PageObjectContext implements KernelAwareConte
         $encoder = $this->kernel->getContainer()->get('security.password_encoder');
 
         return $encoder->encodePassword($user, $password);
-    }
-
-    /**
-     * @return \FOS\UserBundle\Doctrine\UserManager
-     */
-    private function getUserManager()
-    {
-        return $this->kernel->getContainer()->get('fos_user.user_manager');
     }
 }
