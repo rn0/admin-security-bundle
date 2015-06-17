@@ -9,4 +9,3 @@ admin_security:
 admin_password_reset:
     resource: "@FSiAdminSecurityBundle/Resources/config/routing/admin_password_reset.yml"
     prefix: /admin
-    options: { i18n: false }

@@ -66,8 +66,9 @@ class ChangePasswordController
     {
         /** @var UserPasswordResetInterface $user */
         $user = $this->userRepository->findUserByConfirmationToken($token);
+        //var_dump($this->userRepository->findAll());
         if (null === $user) {
-            throw new NotFoundHttpException();
+            throw new NotFoundHttpException('Unable to find User by token: ' . $token);
         }
 
         if (!$user->isPasswordRequestNonExpired($this->tokenTtl)) {
