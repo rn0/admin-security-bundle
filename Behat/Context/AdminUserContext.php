@@ -13,6 +13,8 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Symfony2Extension\Context\KernelAwareContext;
 use Doctrine\ORM\Tools\SchemaTool;
+use FSi\Bundle\AdminSecurityBundle\Doctrine\UserRepository;
+use FSi\FixturesBundle\Entity\User;
 use SensioLabs\Behat\PageObjectExtension\Context\PageObjectContext;
 use Symfony\Component\HttpKernel\KernelInterface;
 use SensioLabs\Behat\PageObjectExtension\PageObject\Exception\UnexpectedPageException;
@@ -48,22 +50,30 @@ class AdminUserContext extends PageObjectContext implements KernelAwareContext
      */
     public function thereIsUserWithRoleAndPassword($nick, $role, $password)
     {
-        /** @var \FOS\UserBundle\Doctrine\UserManager $userManager */
-        $userManager = $this->kernel->getContainer()->get('fos_user.user_manager');
-        $user = $userManager->createUser();
+        $user = new User();
+        $user->setUsername($nick);
+        $user->setEmail($nick);
+        $user->setRoles(array($role));
 
-        $user->setUsername($nick)
-            ->setEmail($nick)
-            ->setRoles(array($role))
-            ->setPlainPassword($password)
-            ->setEnabled(true);
+        //<editor-fold desc="FIXME: this should be done by listener on flush?">
+        /** @var \Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface $encoder */
+        $encoder = $this->kernel->getContainer()->get('security.encoder_factory')
+            ->getEncoder($user);
 
-        $userManager->updateUser($user);
+        $encodedPassword = $encoder->encodePassword($password, $user->getSalt());
+        $user->setPassword($encodedPassword);
+        //</editor-fold>
+
+        //$user->setPlainPassword($password);
+        //$user->setEnabled(true);
+
+        $userRepository = $this->getUserRepository();
+        $userRepository->save($user);
     }
 
-    /**
-     * @AfterScenario
-     */
+//    /**
+//     * @AfterScenario
+//     */
     public function deleteDatabaseIfExist()
     {
         $dbFilePath = $this->kernel->getRootDir() . '/data.sqlite';
@@ -279,6 +289,10 @@ class AdminUserContext extends PageObjectContext implements KernelAwareContext
         $this->getPage('Admin change password')->fillField('Current password', 'admin');
         $this->getPage('Admin change password')->fillField('New password', 'admin-new');
         $this->getPage('Admin change password')->fillField('Repeat password', 'admin-new');
+
+        $user = $this->getDoctrine()->getManager()->getRepository('FSi\FixturesBundle\Entity\User')
+            ->findOneBy(array('username' => 'admin'));
+        var_dump($user->getSalt());
     }
 
     /**
@@ -359,5 +373,13 @@ class AdminUserContext extends PageObjectContext implements KernelAwareContext
     protected function getDoctrine()
     {
         return $this->kernel->getContainer()->get('doctrine');
+    }
+
+    /**
+     * @return UserRepository
+     */
+    private function getUserRepository()
+    {
+        return $this->kernel->getContainer()->get('admin_security.repository.user');
     }
 }

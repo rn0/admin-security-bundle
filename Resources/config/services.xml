@@ -106,6 +106,12 @@
         <service id="admin_security.token_generator" class="%admin_security.token_generator.class%">
             <argument type="service" id="security.secure_random" />
         </service>
+
+        <!-- user provider -->
+        <service id="admin_security.user_provider" class="FSi\Bundle\AdminSecurityBundle\Provider\UserProvider" public="false">
+            <argument type="service" id="admin_security.repository.user" />
+            <argument type="string">%admin_security.model.user%</argument>
+        </service>
     </services>
 
 </container>

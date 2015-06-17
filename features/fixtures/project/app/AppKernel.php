@@ -19,7 +19,6 @@ class AppKernel extends Kernel
             new FSi\Bundle\DataGridBundle\DataGridBundle(),
             new FSi\Bundle\AdminBundle\FSiAdminBundle(),
             new FSi\FixturesBundle\FSiFixturesBundle(),
-            new FOS\UserBundle\FOSUserBundle(),
             new FSi\Bundle\AdminSecurityBundle\FSiAdminSecurityBundle()
         );
     }
@@ -29,13 +28,13 @@ class AppKernel extends Kernel
         $loader->load(sprintf('%s/config/config.yml', __DIR__));
     }
 
-    public function getCacheDir()
-    {
-        return sys_get_temp_dir() . '/FSiAdminSecurityBundle/cache';
-    }
-
-    public function getLogDir()
-    {
-        return sys_get_temp_dir() . '/FSiAdminSecurityBundle/logs';
-    }
+//    public function getCacheDir()
+//    {
+//        return sys_get_temp_dir() . '/FSiAdminSecurityBundle/cache';
+//    }
+//
+//    public function getLogDir()
+//    {
+//        return sys_get_temp_dir() . '/FSiAdminSecurityBundle/logs';
+//    }
 }

@@ -7,6 +7,7 @@ use Behat\Mink\Session;
 use Behat\MinkExtension\Context\MinkAwareContext;
 use Behat\Symfony2Extension\Context\KernelAwareContext;
 use DateInterval;
+use FSi\Bundle\AdminSecurityBundle\Doctrine\UserRepository;
 use SensioLabs\Behat\PageObjectExtension\Context\PageObjectContext;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -69,14 +70,14 @@ class PasswordResetContext extends PageObjectContext implements KernelAwareConte
      */
     public function userHasConfirmationToken($username, $confirmationToken)
     {
-        $userManager = $this->getUserManager();
+        $userManager = $this->getUserRepository();
 
-        $user = $userManager->findUserByUsername($username);
+        $user = $userManager->findUserByEmail($username);
 
         $user->setConfirmationToken($confirmationToken);
         $user->setPasswordRequestedAt(new \DateTime());
 
-        $userManager->updateUser($user);
+        $userManager->save($user);
     }
 
     /**
@@ -84,9 +85,9 @@ class PasswordResetContext extends PageObjectContext implements KernelAwareConte
      */
     public function userHasConfirmationTokenWithTtl($username, $confirmationToken)
     {
-        $userManager = $this->getUserManager();
+        $userRepository = $this->getUserRepository();
 
-        $user = $userManager->findUserByUsername($username);
+        $user = $userRepository->findUserByUsername($username);
 
         $passwordRequestedAt = new \DateTime();
         $passwordRequestedAt->sub(new DateInterval('P1D'));
@@ -94,7 +95,7 @@ class PasswordResetContext extends PageObjectContext implements KernelAwareConte
         $user->setConfirmationToken($confirmationToken);
         $user->setPasswordRequestedAt($passwordRequestedAt);
 
-        $userManager->updateUser($user);
+        $userRepository->save($user);
     }
 
     /**
@@ -152,11 +153,11 @@ class PasswordResetContext extends PageObjectContext implements KernelAwareConte
     }
 
     /**
-     * @return \FOS\UserBundle\Doctrine\UserManager
+     * @return UserRepository
      */
-    private function getUserManager()
+    private function getUserRepository()
     {
-        return $this->kernel->getContainer()->get('fos_user.user_manager');
+        return $this->kernel->getContainer()->get('admin_security.repository.user');
     }
 
     /**

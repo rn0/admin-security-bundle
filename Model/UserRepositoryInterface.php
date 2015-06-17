@@ -20,6 +20,12 @@ interface UserRepositoryInterface
     public function findUserByConfirmationToken($confirmationToken);
 
     /**
+     * @param $userName
+     * @return UserInterface|null
+     */
+    public function findUserByUsername($userName);
+
+    /**
      * @param $email
      * @return UserInterface|null
      */
