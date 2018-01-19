@@ -137,6 +137,8 @@ security:
             pattern:    ^/admin
             form_login:
                 provider: entity_provider
+                csrf_provider: form.csrf_provider
+                intention: admin_authenticate
                 check_path: fsi_admin_security_user_check
                 login_path: fsi_admin_security_user_login
             logout:
